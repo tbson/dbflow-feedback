@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Discord community
+    url: https://discord.gg/DVgaXN52ex
+    about: Chat with other Schemity users and the developer - fastest for quick questions.
+  - name: Documentation
+    url: https://schemity.com/doc
+    about: Guides for connections, reverse engineering, context views, migrations, and more.
+  - name: FAQ
+    url: https://schemity.com/faq
+    about: Answers about pricing, licensing, privacy, and supported databases.

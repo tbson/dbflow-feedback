@@ -12,6 +12,12 @@ We use GitHub Issues to track all feedback. This is the primary way to reach the
 
 Before creating a new issue, please search the existing issues to see if your feedback has already been reported.
 
+Also in this repository:
+
+- **[Roadmap](ROADMAP.md)** - what recently shipped, what we are building, and what your feedback can influence
+- **[Changelog](CHANGELOG.md)** - release notes for every version
+- **[Example schemas](examples/)** - importable sample workspaces, in Schemity's plain-JSON format plus DBML and SQL
+
 ## What is Schemity?
 
 **Schemity** is an offline ERD tool for software engineers who work with relational databases. Design your data model visually, create relationships by drag and drop, reverse engineer a live database into a diagram, and generate SQL migrations for review - in a lightweight native desktop app that works fully offline. Your diagrams are plain JSON files on your own machine, so this is a Git-native ERD tool by design: commit the ERD next to your code and review schema changes in pull requests.
