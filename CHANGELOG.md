@@ -2,6 +2,28 @@
 
 Release notes for [Schemity](https://schemity.com), the offline desktop ERD tool. Newest first. Download the latest version at [schemity.com](https://schemity.com/#platforms).
 
+## v2.8.1 - 2026-08-01
+- ✨ ON DELETE CASCADE made visible: relationships whose foreign key cascades on delete are drawn with a bold crow's foot at the child end, on both the canvas and SVG export. The signal is deliberately weight, not color - a cascade is a design decision that deserves attention, not an error to fix.
+- ✨ The field form now offers a `<NULL>` default value for nullable fields covered by a check constraint or enum-like values.
+- 🔧 Upgraded dependencies, including the DBML library and Vite, with fixes to keep DBML import/export working exactly as before.
+- 🐛 MySQL: string DEFAULT values are now quoted correctly for types outside the allowlist.
+- 🐛 Fixed license removal handling.
+
+## v2.8.0 - 2026-07-20
+- ✨ Context Map: a bird's-eye view that renders each context view as a single node and draws arrows for the dependencies between contexts, with a badge on each arrow showing how many foreign keys flow in that direction. Click a context to highlight all of its dependency arrows; double-click an arrow to see every underlying foreign key behind it (source field, target entity, and constraint name).
+- ✨ Arrow shape encodes dependency health: a straight arrow is a one-way dependency, a curved arrow means the two contexts depend on each other - so circular dependencies stand out at a glance. Every arrow starts with a circle at its source end, so where a line begins is never ambiguous.
+- ✨ Each context's color carries over to its Context Map node and outgoing arrows. Fuzzy search focuses any context instantly, and the footer shows how many contexts and dependencies the map contains. Export the map as JPG, PNG, or SVG, or as a Mermaid diagram.
+- ✨ The AI chat works with the Context Map: ask it to re-arrange the contexts, or to analyze the map for circular dependencies - including indirect cycles that span several contexts (A -> C -> B -> A), which no visual scan of pairwise arrows can reveal.
+- ✨ Right-click a legend and choose "Import to context views" to bring every entity inside that legend into a context view in one step - a legend drawn around a domain becomes a context view without adding entities one by one.
+- ✨ Export a diagram as a Mermaid erDiagram file, so the schema renders natively as a diagram on Mermaid-enabled platforms such as GitHub, GitLab, Notion, and Obsidian.
+
+## v2.7.0 - 2026-07-17
+- ✨ Markdown descriptions for entities and legends: write a description in a markdown editor with write/preview tabs. When the description is not empty, a note icon appears at the bottom-right corner of the entity or legend - on the canvas and in SVG exports - and clicking it opens the rendered description in a modal.
+- ✨ Context view descriptions: each context view can carry its own markdown description, opened from a file icon in the context view list.
+- 🔧 Entity descriptions are pure ERD data: they survive database re-introspection and re-sync.
+- 🐛 The description modal now stacks above the context view drawer, and drawer keyboard shortcuts are guarded while modals are open.
+- 🐛 Auto-resize and other control button clicks no longer activate the enclosing legend.
+
 ## v2.6.0 - 2026-07-15
 - ✨ New entities stand out: entities created since your last save show a dashed outline, so you can spot unsaved work at a glance. The outline clears when you save and never appears in exported images, SVGs, or thumbnails. Pasted, duplicated, and imported entities are marked too.
 - ✨ Sync layout across connections: copy entities in one connection and paste them into another. Entities that already exist there (same name) get their position, size, and color updated in place (schema untouched, relations re-route automatically), and missing ones are created at the exact copied coordinates. Pasting within the same connection still duplicates as before.

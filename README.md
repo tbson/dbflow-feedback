@@ -36,7 +36,7 @@ Supported databases: **PostgreSQL, Supabase, MySQL, MariaDB, SQL Server, and SQL
 No cloud, no account, no server component. A local ERD tool that works on a plane, behind a VPN, or fully air-gapped - which also makes it an ERD tool that IT departments approve without a security review, and a safe choice for NDA projects and client work.
 
 **Context views: one schema, many perspectives.**
-Break a large schema into focused sub-diagrams - auth, billing, analytics - while the main diagram stays the single source of truth. Context views are read-only by design, an orange dot marks entities with relationships outside the view, and you can create as many views as the schema deserves. This is how a 300-table database becomes diagrams people actually read.
+Break a large schema into focused sub-diagrams - auth, billing, analytics - while the main diagram stays the single source of truth. Context views are read-only by design, an orange dot marks entities with relationships outside the view, and you can create as many views as the schema deserves. This is how a 300-table database becomes diagrams people actually read. Then zoom out further with the Context Map: every context becomes a single node with dependency arrows between them, so the architecture itself is a diagram too.
 
 **Git-native, not cloud-locked.**
 Every diagram is a plain JSON file in a workspace folder you choose. Commit it, diff it, review it in pull requests, and let `git log` be your schema's history. No vendor between you and your own work.
@@ -99,12 +99,21 @@ Honest, detailed comparisons with the tools people usually evaluate alongside Sc
 - Legends group related entities visually - drag, resize, rename, recolor; lock a legend to move its entities with it; right-click a legend to export the SQL of everything inside it
 - Two predefined layouts (alphabetical or relationship-based) plus Reset Layout
 - Realtime fuzzy search across entity and field names - type any fragment and jump straight to the match
-- Export diagrams and context views as JPG, PNG, or SVG, or export the full SQL
+- Legends, entities, and context views support markdown descriptions - a file icon opens the rendered description in a modal
+- Export diagrams and context views as JPG, PNG, or SVG, export the full SQL, or export a Mermaid erDiagram that renders natively on GitHub, GitLab, Notion, and Obsidian
 
 ### Context Views
 - Focused sub-diagrams of the main ERD: import just the entities for one subject area and arrange them freely
 - Read-only by design - the main view stays the single source of truth
 - An orange dot marks entities with relationships outside the view, so a focused diagram never hides that it is incomplete
+- Right-click a legend and choose "Import to context views" - a legend drawn around a domain becomes a context view in one step, without adding entities one by one
+
+### Context Map
+- A bird's-eye view that renders each context view as a single node, with arrows for the dependencies between contexts and a badge showing how many foreign keys flow in each direction
+- Arrow shape encodes dependency health: a straight arrow is a one-way dependency, a curved arrow means two contexts depend on each other - circular dependencies stand out at a glance
+- Click a context to highlight all of its dependency arrows; double-click an arrow to see every underlying foreign key behind it
+- Each context's color carries over to its node and outgoing arrows, and fuzzy search focuses any context instantly, even on a busy map
+- Export the Context Map as JPG, PNG, or SVG, or as a Mermaid diagram
 
 ### Fields & Constraints
 - Distinct icons for primary keys, foreign keys, and regular fields; nullable and unique badges and default values shown directly on the entity
@@ -116,6 +125,7 @@ Honest, detailed comparisons with the tools people usually evaluate alongside Sc
 ### Relationships & Foreign Keys
 - Create foreign keys by dragging a field to another entity - 1:N, 1:1, and N:N with auto-generated junction tables; self-referencing keys supported
 - Clear crow's foot notation with configurable cardinality, ON DELETE, and ON UPDATE
+- Relationships with ON DELETE CASCADE are drawn with a bold crow's foot at the child end, so cascading deletes are visible on the canvas without opening any dialog
 - Entity colors carry to relationship lines; click a relationship to highlight it together with both connected fields
 - Custom waypoints with rounded corners, line hops where lines cross, and double-click gestures to reshape or reset a line
 - Foreign key naming convention (snake_case or camelCase) configurable per connection
@@ -128,6 +138,7 @@ Honest, detailed comparisons with the tools people usually evaluate alongside Sc
 - Built-in AI chat with BYOK support: OpenAI, Claude, Gemini, Grok, DeepSeek - requests go directly from your desktop to your provider
 - Ollama support for local models: the same diagram-editing chat with zero network egress
 - The chat interacts with the diagram itself - it creates and modifies entities and relationships, with full undo
+- It works with the Context Map too: ask it to re-arrange the contexts, or to analyze the map for circular dependencies - including indirect cycles spanning several contexts that no visual scan can reveal
 
 ### Keyboard & Productivity
 - Shortcuts for nearly every action; Vim-style navigation (h/j/k/l) across entities and fields
