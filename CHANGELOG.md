@@ -2,6 +2,40 @@
 
 Release notes for [Schemity](https://schemity.com), the offline desktop ERD tool. Newest first. Download the latest version at [schemity.com](https://schemity.com/#platforms).
 
+## v2.9.2 - 2026-08-13
+- ✨ Schema lint: a mode that checks the diagram against seventeen classes of schema problem and shows every finding on the diagram itself - a colored strip in the margin marks the exact entity and the exact field row concerned, with a count beside entities carrying more than one. Findings are grouped by consequence (fails at runtime, constraint unenforced, permanent cost, convention worth confirming) rather than graded on a severity scale, and each one can jump to its entity on the canvas or open the dialog that resolves it.
+- ✨ The lint knows the difference between a link table that is correct and one that is not: a junction table with a composite primary key over its foreign key pair, and one with a surrogate id plus a unique constraint on that pair, are both accepted, so neither keying convention is reported as a mistake. It also catches the constraint that looks right in a schema dump and enforces nothing - a multi-column unique containing a nullable column, where NULLs compare as distinct and the same combination can repeat without limit.
+- ✨ A count badge on the Lint button stays live whether or not the mode is open, colored by the most serious finding, so a schema carrying only naming conventions stays quiet while one that will fail at runtime does not.
+- ✨ Lint findings can be ignored one at a time, and individual rules switched off, per diagram. Both are saved in the diagram file, so the conventions a team agreed on travel with the schema and get reviewed in Git instead of being re-dismissed by everyone who opens it.
+- ✨ A diagram stays editable when its database is unreachable: recoloring or moving an entity still saves, because the migration diff is computed from the ERD and the schema already on hand rather than by querying the database. Re-sync checks the connection before asking anything and reports an unreachable database instead of prompting, leaving the diagram and its full undo history untouched.
+- ✨ Fuzzy search now finds legends alongside entities and fields. Every row is prefixed with what it is ([E] entity, [F] field, [L] legend), results are ordered by match quality first so equally good hits never interleave, and selecting a legend selects it on the canvas and centres the viewport on it. Each view searches its own legends.
+- ✨ An empty canvas now tells you the way in: the main view points at right-click and the create-entity shortcut, while a context view points at import instead. The hint is click-through, so a right-click on the text still opens the very menu it teaches, and it never appears in exports.
+- 🔧 The minimap and schema lint require a licence. F2 toggles Lint mode and F8 toggles the minimap.
+- 🔧 Shortcut keys in the help dialog render in upper case, joined to their modifier, without brace markers.
+- 🔧 A new context view now defaults to a color from the entity palette.
+- 🔧 The canvas no longer re-rasterizes in full after every entity drag.
+- 🔧 Upgraded dependencies, including @dbml/core to 10.0.0, antd to 6.6.0, and posthog-js.
+
+## v2.9.1 - 2026-08-08
+- 🔧 The ERD visual system was rebuilt on measured, theme-aware tokens, so entities, badges, and relationship lines stay consistent across light and dark mode.
+- 🔧 The canvas grid was removed.
+- 🔧 The Context Map dependency drawer now opens on a single click.
+- 🔧 The connection manager uses consistent icons and button weights.
+- 🔧 Upgraded dependencies.
+
+## v2.9.0 - 2026-08-05
+- ✨ Minimap: a toggleable map at the bottom right of the canvas shows the shape of the whole diagram at a glance - every legend and entity in miniature, plus a rectangle marking the part the viewport covers. Click anywhere on it to jump straight there, or drag the rectangle to pan continuously, so inspecting a distant corner no longer means zooming all the way out and back in. The main view and each context view carry their own minimap. Toggle it from the footer or with Ctrl/Cmd + Shift + M.
+- ✨ The minimap draws only legends and entities, never relationships, and ignores custom colors: it is a map of where things are, not a shrunken second copy of the diagram, so it stays readable no matter how dense the ERD is. Color is used in exactly one place - entities not yet confirmed by the database are drawn in orange, so tables pulled in by a re-sync, or entities imported into a context view, are easy to find on a large canvas.
+- ✨ Database views and materialized views are introspected on every supported dialect and shown as read-only entities: an italic name and a view or mview label in the entity footer set them apart from base tables. Their schema cannot be edited, new relations cannot be dropped onto them, and they are excluded from migration, DBML, and Mermaid output. SQL Server indexed views are detected as materialized, with their indexes shown.
+- ✨ Workspaces whose folder sits inside a Git repository show a Git branch icon next to their name, so which of your diagrams are actually under version control is visible at a glance. Detection walks up the directory tree, so the icon appears whether the workspace folder is the repository root itself or a subfolder nested anywhere inside a larger Git project.
+- 🔧 SQL export now creates tables with their constraints inline: primary keys, unique constraints, check constraints, and foreign keys are written into CREATE TABLE on PostgreSQL, MySQL, and SQL Server, with statements emitted in dependency order and ALTER statements only where a deferred foreign key needs one.
+- 🔧 The entity description marker now appears as soon as the description changes.
+- 🔧 The legend drawer's submit button moved to the footer, and its Cancel button was dropped.
+- 🔧 The export watermark is smaller and tucked into the corner.
+- 🐛 The inline rename overlay stays attached to its entity while the canvas pans.
+- 🐛 Dot-prefixed folders no longer appear in the workspace list.
+- 🐛 MySQL: migration foreign key additions are now ordered after new-table creation.
+
 ## v2.8.1 - 2026-08-01
 - ✨ ON DELETE CASCADE made visible: relationships whose foreign key cascades on delete are drawn with a bold crow's foot at the child end, on both the canvas and SVG export. The signal is deliberately weight, not color - a cascade is a design decision that deserves attention, not an error to fix.
 - ✨ The field form now offers a `<NULL>` default value for nullable fields covered by a check constraint or enum-like values.

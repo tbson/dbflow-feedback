@@ -53,6 +53,9 @@ Keyboard-first editing down to Vim-style navigation, entity templates so every t
 **Constraints without the guesswork.**
 Check constraints, composite unique constraints, indexes, defaults, and not-null rules are part of the visual design - displayed as badges directly on the entities, not buried in migration files. Clear crow's foot notation describes the full meaning of every relationship.
 
+**A schema linter that reads facts, not verdicts.**
+Seventeen classes of schema problem, checked entirely offline and reported on the diagram itself - a strip in the margin marking the entity and the field row concerned, not a list you have to translate back into the picture. Findings are grouped by what they actually cost you rather than scored on a severity scale, and per-diagram ignores and rule switches are saved in the file, so the conventions your team agreed on get reviewed in Git like the rest of the schema.
+
 **Lightweight. No Electron. No JVM.**
 Built with a native WebView and Rust. Fast to download, instant to launch - a lightweight ERD tool, not a database IDE.
 
@@ -80,6 +83,7 @@ Honest, detailed comparisons with the tools people usually evaluate alongside Sc
 - Multiple workspaces, each a folder on disk; every diagram is a plain local JSON file you can version control with Git
 - Manage multiple database connections and diagrams per workspace; reorder by drag and drop
 - Import an existing workspace from anywhere on your machine; open the workspace folder in the native file manager with one click
+- Workspaces are marked in the list for what they are: a Git branch icon when the folder sits inside a Git repository (at any depth), and its own icon when the workspace was imported from outside the default `~/schemity` folder - the two markers are independent and stack
 - Open diagrams in read-only mode - explore a diagram created from a connection without access to that connection
 
 ### Database Connections
@@ -93,14 +97,19 @@ Honest, detailed comparisons with the tools people usually evaluate alongside Sc
 - Re-sync keeps a reverse-engineered ERD current: reopening the diagram pulls the latest schema, existing entities keep their layout, and a Reset ERD action does the same on demand
 - Import SQL (CREATE TABLE statements or a full dump) to generate entities and relationships automatically
 - Import and export DBML, so schemas move to and from dbdiagram.io and the wider DBML toolchain in one step
+- Database views and materialized views are introspected on every supported dialect and shown as read-only entities - italic name, a view or mview label in the footer - and excluded from migration, DBML, and Mermaid output
+- A diagram stays editable when its database is unreachable: moving or recoloring an entity still saves, and re-sync reports the unreachable database instead of prompting, leaving your work in progress and its undo history untouched
 
 ### Diagram Design
 - Dark mode and light mode; entities auto-resize to fit content; smart snapping and marquee multi-select
 - Legends group related entities visually - drag, resize, rename, recolor; lock a legend to move its entities with it; right-click a legend to export the SQL of everything inside it
 - Two predefined layouts (alphabetical or relationship-based) plus Reset Layout
-- Realtime fuzzy search across entity and field names - type any fragment and jump straight to the match
-- Legends, entities, and context views support markdown descriptions - a file icon opens the rendered description in a modal
+- Realtime fuzzy search across entity, field, and legend names - type any fragment and jump straight to the match, with each result prefixed by what it is and ordered by match quality
+- A toggleable minimap shows the whole diagram in miniature with a rectangle marking your viewport: click to jump, drag to pan. Each view carries its own, and entities not yet confirmed by the database are the one thing drawn in color
+- An empty canvas points at the way in - right-click and the create-entity shortcut on the main view, import on a context view - and the hint never appears in exports
+- Legends and entities support markdown descriptions - a small triangle in the top-right corner opens the rendered description in a modal; context views carry their own, opened from the context view list
 - Export diagrams and context views as JPG, PNG, or SVG, export the full SQL, or export a Mermaid erDiagram that renders natively on GitHub, GitLab, Notion, and Obsidian
+- SVG exports are true vector documents, not a screenshot wearing an .svg extension: shapes are real shapes grouped per entity and names stay live text, so a diagram opens as editable artwork in Figma, Affinity Designer, Illustrator, or Inkscape
 
 ### Context Views
 - Focused sub-diagrams of the main ERD: import just the entities for one subject area and arrange them freely
@@ -133,6 +142,14 @@ Honest, detailed comparisons with the tools people usually evaluate alongside Sc
 ### Migrations
 - Change the ERD and Schemity generates the SQL migration diff for review; it runs against the connected database only when you explicitly apply it
 - Dashed borders distinguish draft entities that do not exist in the database yet
+- Exported SQL creates tables with their constraints inline - primary keys, unique and check constraints, and foreign keys inside CREATE TABLE, emitted in dependency order, with ALTER statements only where a deferred foreign key needs one
+
+### Schema Lint
+- Seventeen classes of schema problem, checked offline against the diagram and reported on the diagram itself: a colored strip in the margin marks the exact entity and the exact field row, with a count beside entities carrying more than one
+- Findings are grouped by consequence - fails at runtime, constraint unenforced, permanent cost, convention worth confirming - rather than graded on a severity scale, and each one jumps to its entity on the canvas or opens the dialog that resolves it
+- It knows a correct link table from a broken one: a composite primary key over the foreign key pair and a surrogate id plus a unique constraint on that pair are both accepted, while a multi-column unique containing a nullable column - which enforces nothing, because NULLs compare as distinct - is caught
+- A live count badge on the Lint button, colored by the most serious finding, works whether or not the mode is open
+- Per-finding ignores and per-rule switches are saved in the diagram file, so the conventions your team agreed on travel with the schema and get reviewed in Git
 
 ### AI Assistant
 - Built-in AI chat with BYOK support: OpenAI, Claude, Gemini, Grok, DeepSeek - requests go directly from your desktop to your provider
@@ -150,7 +167,7 @@ Honest, detailed comparisons with the tools people usually evaluate alongside Sc
 
 **$129 one-time** - a one-time purchase ERD tool, not a subscription. Includes 1 year of updates; $69/year to keep receiving updates after that, and the app keeps working forever even if you never renew.
 
-**Free for education** (email support@schemity.com with your .edu address) and a **2-week full trial** for everyone - the app stays usable for visual design after the trial ends. Details on the [pricing page](https://schemity.com/pricing).
+**Free for education** (email support@schemity.com with your .edu address) and a **2-week full trial** for everyone - the app stays usable for visual design after the trial ends, while licensed features such as the minimap and schema lint need an active licence. Details on the [pricing page](https://schemity.com/pricing).
 
 ---
 
