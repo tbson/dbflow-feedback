@@ -53,6 +53,9 @@ Keyboard-first editing down to Vim-style navigation, entity templates so every t
 **Constraints without the guesswork.**
 Check constraints, composite unique constraints, indexes, defaults, and not-null rules are part of the visual design - displayed as badges directly on the entities, not buried in migration files. Clear crow's foot notation describes the full meaning of every relationship.
 
+**Documentation that leaves the app.**
+The diagram also exports as a data dictionary rather than a picture: HTML for someone who will never install Schemity, Markdown to commit beside the code, an Excel workbook to filter and sort - every entity, column, constraint, and relationship, ending with a count of what is not documented yet. Field descriptions are diagram data, so writing one produces no migration and never touches the database.
+
 **A schema linter that reads facts, not verdicts.**
 Seventeen classes of schema problem, checked entirely offline and reported on the diagram itself - a strip in the margin marking the entity and the field row concerned, not a list you have to translate back into the picture. Findings are grouped by what they actually cost you rather than scored on a severity scale, and per-diagram ignores and rule switches are saved in the file, so the conventions your team agreed on get reviewed in Git like the rest of the schema.
 
@@ -65,7 +68,7 @@ Schemity is for any software engineer who works with relational databases:
 
 - **Starting a new project** - model your domain visually before writing a single migration
 - **Joining an existing codebase** - reverse engineer PostgreSQL (or any supported database) into an ERD and understand the schema fast
-- **Documenting production** - connect through an SSH tunnel with credentials in the OS keychain, read the schema, and share the diagram read-only without sharing database access
+- **Documenting production** - connect through an SSH tunnel with credentials in the OS keychain, read the schema, share the diagram read-only without sharing database access, and export a data dictionary for people who will never open Schemity
 - **Evolving a growing schema** - design changes visually, generate precise migrations, keep the ERD in sync with re-sync
 - **Consulting and client work** - one workspace folder per client, physically isolated, handed over or deleted as a folder
 
@@ -89,13 +92,17 @@ Honest, detailed comparisons with the tools people usually evaluate alongside Sc
 ### Database Connections
 - PostgreSQL, Supabase, MySQL, MariaDB, SQL Server, and SQLite; multi-schema support on PostgreSQL
 - Direct or SSH tunnel connections; test a connection before saving it
-- Passwords stored in the OS keychain, never in plain text; SSH keys stored by reference only
-- Environment tags (Local, Staging, Production) keep the connection list honest
+- Paste a connection string and the dialog fills itself in - PostgreSQL, MySQL, and SQL Server URIs, a `jdbc:` prefix, and the ADO.NET key/value form the Azure portal hands out; a malformed string is reported rather than half-applied, and every parameter left unused is listed
+- TLS verification, not just TLS: verify-ca and verify-full check the server's certificate against a chain, with custom root CA and client certificate files passed through to the drivers
+- Passwords stored in the OS keychain, never in plain text; SSH keys stored by reference only; opening a connection asks for the keychain once, not once per command
+- Connection setup hides behind a "Connect to a database" link, so a design-only diagram is name, database type, naming, save - with a visible undo that keeps anything already typed
+- Environment tags (Local, Stag, Prod) keep the connection list easy to scan; the badge appears on a diagram only when there is a connection behind it
 
 ### Reverse Engineering & Re-sync
 - Design from scratch, or connect to a real database and reverse engineer its schema into an ERD
 - Re-sync keeps a reverse-engineered ERD current: reopening the diagram pulls the latest schema, existing entities keep their layout, and a Reset ERD action does the same on demand
 - Import SQL (CREATE TABLE statements or a full dump) to generate entities and relationships automatically
+- Column comments already in the database are read in as field descriptions and never written back, so an existing schema arrives documented and no refresh overwrites your notes
 - Import and export DBML, so schemas move to and from dbdiagram.io and the wider DBML toolchain in one step
 - Database views and materialized views are introspected on every supported dialect and shown as read-only entities - italic name, a view or mview label in the footer - and excluded from migration, DBML, and Mermaid output
 - A diagram stays editable when its database is unreachable: moving or recoloring an entity still saves, and re-sync reports the unreachable database instead of prompting, leaving your work in progress and its undo history untouched
@@ -110,6 +117,8 @@ Honest, detailed comparisons with the tools people usually evaluate alongside Sc
 - Legends and entities support markdown descriptions - a small triangle in the top-right corner opens the rendered description in a modal; context views carry their own, opened from the context view list
 - Export diagrams and context views as JPG, PNG, or SVG, export the full SQL, or export a Mermaid erDiagram that renders natively on GitHub, GitLab, Notion, and Obsidian
 - SVG exports are true vector documents, not a screenshot wearing an .svg extension: shapes are real shapes grouped per entity and names stay live text, so a diagram opens as editable artwork in Figma, Affinity Designer, Illustrator, or Inkscape
+- Export a data dictionary instead of a picture: HTML to print or hand to someone who will never open Schemity, Markdown to commit beside the code, or a six-sheet Excel workbook to filter and sort - every entity and column with its type, key, nullability, default, and description, the unique, check, and index constraints, the relationships with their cardinality and delete rules, and the notes held in legends and context views. Database views are included and labelled, and the export follows the active view, so exporting from a context view documents that context alone
+- The data dictionary ends with its own coverage report - how many entities and fields carry a description and the names of those that do not - counting only what you can actually document, so a read-only view's columns are never listed as missing anything
 
 ### Context Views
 - Focused sub-diagrams of the main ERD: import just the entities for one subject area and arrange them freely
@@ -122,13 +131,15 @@ Honest, detailed comparisons with the tools people usually evaluate alongside Sc
 - Arrow shape encodes dependency health: a straight arrow is a one-way dependency, a curved arrow means two contexts depend on each other - circular dependencies stand out at a glance
 - Click a context to highlight all of its dependency arrows; double-click an arrow to see every underlying foreign key behind it
 - Each context's color carries over to its node and outgoing arrows, and fuzzy search focuses any context instantly, even on a busy map
+- The map is a two-way door: an enter icon on the selected box opens that context view, a floating Context Map button in every view gets you back, and the map's exit lands on Main - the one view nothing else on the map could reach
 - Export the Context Map as JPG, PNG, or SVG, or as a Mermaid diagram
 
 ### Fields & Constraints
-- Distinct icons for primary keys, foreign keys, and regular fields; nullable and unique badges and default values shown directly on the entity
+- Distinct icons for primary keys, foreign keys, and what each plain field holds - text, whole and fractional numbers, booleans, dates and times, JSON, and UUID, with arrays drawing their element's icon inside brackets; nullable and unique badges and default values shown directly on the entity
 - Check constraints, composite unique constraints, and indexes managed visually; fields covered by an IN check constraint are underlined, with their allowed values one keystroke away
 - Convention-aware placement: new fields land above timestamp fields, new foreign keys below the primary key
 - Entity templates pre-populate every new table with the fields your team always adds
+- Fields carry descriptions of their own, marked by a bar on the leading edge of the row - drawn in SVG exports too - so which columns are documented is a glance rather than an audit; a description is diagram data, never a schema change, so documenting a column produces no migration
 - Array type support for PostgreSQL; smart default values picked from special values or check constraints
 
 ### Relationships & Foreign Keys
@@ -137,7 +148,7 @@ Honest, detailed comparisons with the tools people usually evaluate alongside Sc
 - Relationships with ON DELETE CASCADE are drawn with a bold crow's foot at the child end, so cascading deletes are visible on the canvas without opening any dialog
 - Entity colors carry to relationship lines; click a relationship to highlight it together with both connected fields
 - Custom waypoints with rounded corners, line hops where lines cross, and double-click gestures to reshape or reset a line
-- Foreign key naming convention (snake_case or camelCase) configurable per connection
+- Foreign key naming convention (snake_case or camelCase) configurable per connection - applied to the names Schemity writes itself, the foreign key field added when a relation is drawn and the composite keys of a junction table, never to the names you type
 
 ### Migrations
 - Change the ERD and Schemity generates the SQL migration diff for review; it runs against the connected database only when you explicitly apply it
@@ -165,9 +176,9 @@ Honest, detailed comparisons with the tools people usually evaluate alongside Sc
 
 ## Pricing
 
-**$129 one-time** - a one-time purchase ERD tool, not a subscription. Includes 1 year of updates; $69/year to keep receiving updates after that, and the app keeps working forever even if you never renew.
+**$129 one-time** - a one-time purchase ERD tool, not a subscription. Includes 1 year of updates; $69/year to keep receiving updates after that. Your licence never expires and security patches stay free, so the app keeps working forever even if you never renew.
 
-**Free for education** (email support@schemity.com with your .edu address) and a **2-week full trial** for everyone - the app stays usable for visual design after the trial ends, while licensed features such as the minimap and schema lint need an active licence. Details on the [pricing page](https://schemity.com/pricing).
+**Free for education** (email support@schemity.com with your .edu address) and a **2-week full trial** for everyone, no credit card. After the trial, offline design keeps working and nothing on your disk is locked away - what pauses is the live-database half and the features built on it, including context views, the minimap, and schema lint, until a licence unlocks them again. Existing workspaces stay usable; only creating a new one is gated. Details on the [pricing page](https://schemity.com/pricing).
 
 ---
 

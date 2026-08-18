@@ -2,6 +2,39 @@
 
 Release notes for [Schemity](https://schemity.com), the offline desktop ERD tool. Newest first. Download the latest version at [schemity.com](https://schemity.com/#platforms).
 
+## v2.9.5 - 2026-08-17
+- 🔧 Release build only; no user-facing changes since v2.9.3.
+
+## v2.9.4 - 2026-08-17
+- 🔧 Release build only; no user-facing changes since v2.9.3.
+
+## v2.9.3 - 2026-08-17
+- ✨ Data dictionary export: the diagram exports as a document rather than a picture, in three formats for three readers - HTML to print or hand to someone who will never open Schemity, Markdown to commit beside the code, and an Excel workbook to filter and sort. Each covers every entity and column with its type, key, nullability, default and description, the unique, check and index constraints on each table, the relationships with their cardinality and delete rules, and the notes held in legends and context views. The export follows the active view, so exporting from a context view documents that context alone.
+- ✨ Database views appear in the data dictionary, labelled as views rather than dropped. The SQL, DBML and Mermaid exports still leave them out because those formats describe tables you can create; a document read by someone checking what exists is a different job.
+- ✨ The data dictionary closes with what is not written down yet: how many entities and fields carry a description, and the names of those that do not. It counts only what can be changed, so the read-only columns of a database view are never listed as missing anything.
+- ✨ The Excel data dictionary is a six-sheet workbook - overview, entities, fields, constraints, relationships and notes. Every sheet is present even when it has no rows, so a spreadsheet built on top of one export still works on the next, and column counts are written as numbers rather than text so they total.
+- ✨ Fields carry a description of their own, and a documented field is visible without opening it: a bar on the leading edge of the row marks any field that has one, the field-level answer to the corner triangle entities and legends already use. It is drawn in SVG exports too.
+- ✨ Documenting a column is not a schema change: field descriptions live in the diagram and never reach the database, so a sentence of prose no longer produces a migration to review and apply. It also ends silent loss - descriptions used to be overwritten on every refresh, invisibly on PostgreSQL and MySQL and permanently on SQL Server and SQLite. Importing an already documented schema still arrives documented, so comments that exist in the database are read in, just never written back.
+- ✨ Every field carries an icon for what it holds: T for text, a hash for whole numbers, digits around a point for fractional ones, a toggle for booleans, a calendar for dates and times, braces for JSON, and a dedicated glyph for UUID. Arrays draw their element's icon inside square brackets, so a `text[]` column no longer claims to be a string. Types are grouped by what the value is rather than by what an engine calls it, so INT and BIGINT share a glyph, as do DATE and TIMESTAMPTZ, while primary and foreign keys keep their own icons untouched.
+- ✨ Paste a connection string and the connection dialog fills itself in: PostgreSQL, MySQL and SQL Server URIs are understood, along with a `jdbc:` prefix and the ADO.NET key/value form the Azure portal hands out. It fails closed rather than guessing - a malformed URL or a bad port is reported instead of being half-applied - and every parameter it did not use is listed rather than dropped in silence.
+- ✨ TLS verification, not just TLS: verify-ca and verify-full sit alongside the existing modes in the encryption picker and check the server's certificate against a chain instead of only encrypting the link, with custom root CA and client certificate files passed through to the drivers. Existing workspace files load unchanged, and SQL Server connections saved as REQUIRE keep verifying rather than quietly dropping to unverified.
+- ✨ The Context Map is a two-way door rather than a dead end: an enter icon on the selected box opens that context view, every context view carries a floating Context Map button to get back, and the map's exit button lands on Main, which nothing else on the map could reach. Escape closes the map in place and returns you to the view you were in.
+- 🔧 A quick diagram never has to answer questions about database transports: connection setup hides behind a "Connect to a database" link, so the short path is name, database type, naming, save. The link is a single toggle that stays where you clicked it, and "Design only" gives it a visible undo that preserves anything already typed.
+- 🔧 Opening a connection asks for the operating system keychain once instead of more than ten times. Anyone who pressed Allow rather than Always Allow used to be prompted again for every command, including the ones that went on to answer from cache without using the password at all.
+- 🔧 Environment tags read better: the labels are short (Local, Stag, Prod), the picker has a blank entry so having no environment is a valid answer rather than an unfinished one, and the badge appears on a diagram only when there is a connection behind it.
+- 🔧 The foreign key naming convention says what it actually applies to, in a label tooltip: only the names Schemity writes itself - the foreign key field added when a relation is drawn, and the composite keys of a junction table - never the names you type yourself.
+- 🔧 The unique marker is violet, per theme, rather than one shared red that left the glyph meant to catch the eye as the faintest thing on the dark canvas. Violet also stops a correct design decision borrowing the vocabulary of a fault.
+- 🔧 Both themes are legible on their own terms. Floating surfaces - dropdowns, context menus, select popups, popovers, modals and drawers - have a visible edge in dark mode, where a near-black shadow used to swallow the boundary; on the light theme an uncoloured entity has a visible header again instead of a white body with no head.
+- 🔧 Diagrams are called diagrams everywhere the interface can be read, and the entity and field dialogs were tightened.
+- 🔧 Upgraded dependencies.
+- 🐛 Exports no longer cut off relationships routed around the entities.
+- 🐛 A field can be dragged to the first position.
+- 🐛 The collation name no longer truncates in the field dialog, and the charset and collation lists survive a refresh.
+- 🐛 The field options subtitle stays legible in dark mode.
+- 🐛 MySQL: a foreign key stays indexed when the unique constraint serving it is dropped, and a unique constraint's backing index is no longer reported as a separate index.
+- 🐛 SQLite no longer reports a migration for an untouched diagram, and a save that does produce a migration logs why.
+- 🐛 A brief licence-server outage no longer locks the app.
+
 ## v2.9.2 - 2026-08-13
 - ✨ Schema lint: a mode that checks the diagram against seventeen classes of schema problem and shows every finding on the diagram itself - a colored strip in the margin marks the exact entity and the exact field row concerned, with a count beside entities carrying more than one. Findings are grouped by consequence (fails at runtime, constraint unenforced, permanent cost, convention worth confirming) rather than graded on a severity scale, and each one can jump to its entity on the canvas or open the dialog that resolves it.
 - ✨ The lint knows the difference between a link table that is correct and one that is not: a junction table with a composite primary key over its foreign key pair, and one with a surrogate id plus a unique constraint on that pair, are both accepted, so neither keying convention is reported as a mistake. It also catches the constraint that looks right in a schema dump and enforces nothing - a multi-column unique containing a nullable column, where NULLs compare as distinct and the same combination can repeat without limit.
