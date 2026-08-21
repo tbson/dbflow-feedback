@@ -88,6 +88,7 @@ Honest, detailed comparisons with the tools people usually evaluate alongside Sc
 - Import an existing workspace from anywhere on your machine; open the workspace folder in the native file manager with one click
 - Workspaces are marked in the list for what they are: a Git branch icon when the folder sits inside a Git repository (at any depth), and its own icon when the workspace was imported from outside the default `~/schemity` folder - the two markers are independent and stack
 - Open diagrams in read-only mode - explore a diagram created from a connection without access to that connection
+- Diagrams move between the desktop app and Schemity Lite as JSON: export a diagram exactly as it is saved, and import one from the diagram list without overwriting anything - the import picks a free id and carries the suffix into the name. A password never travels in the file
 
 ### Database Connections
 - PostgreSQL, Supabase, MySQL, MariaDB, SQL Server, and SQLite; multi-schema support on PostgreSQL
@@ -112,10 +113,13 @@ Honest, detailed comparisons with the tools people usually evaluate alongside Sc
 - Legends group related entities visually - drag, resize, rename, recolor; lock a legend to move its entities with it; right-click a legend to export the SQL of everything inside it
 - Two predefined layouts (alphabetical or relationship-based) plus Reset Layout
 - Realtime fuzzy search across entity, field, and legend names - type any fragment and jump straight to the match, with each result prefixed by what it is and ordered by match quality
+- Search can be scoped to one kind of thing by the same letter the results are labelled with: `[e`, `[f`, or `[l` before the query restricts it to entities, fields, or legends, with the closing bracket and the space optional
+- Fields also match on their type, using exactly the text the canvas shows - `VARCHAR(255)` on its length, `TEXT[]` on its array suffix, `[feric` on every NUMERIC column - so you can find the columns that share a shape rather than a name; names still rank above types
 - A toggleable minimap shows the whole diagram in miniature with a rectangle marking your viewport: click to jump, drag to pan. Each view carries its own, and entities not yet confirmed by the database are the one thing drawn in color
 - An empty canvas points at the way in - right-click and the create-entity shortcut on the main view, import on a context view - and the hint never appears in exports
 - Legends and entities support markdown descriptions - a small triangle in the top-right corner opens the rendered description in a modal; context views carry their own, opened from the context view list
 - Export diagrams and context views as JPG, PNG, or SVG, export the full SQL, or export a Mermaid erDiagram that renders natively on GitHub, GitLab, Notion, and Obsidian
+- Get SQL reads whatever is selected, from the right-click menu, the keyboard shortcut, or the command palette alike, so the SQL of an arbitrary group of tables is one gesture rather than a table at a time
 - SVG exports are true vector documents, not a screenshot wearing an .svg extension: shapes are real shapes grouped per entity and names stay live text, so a diagram opens as editable artwork in Figma, Affinity Designer, Illustrator, or Inkscape
 - Export a data dictionary instead of a picture: HTML to print or hand to someone who will never open Schemity, Markdown to commit beside the code, or a six-sheet Excel workbook to filter and sort - every entity and column with its type, key, nullability, default, and description, the unique, check, and index constraints, the relationships with their cardinality and delete rules, and the notes held in legends and context views. Database views are included and labelled, and the export follows the active view, so exporting from a context view documents that context alone
 - The data dictionary ends with its own coverage report - how many entities and fields carry a description and the names of those that do not - counting only what you can actually document, so a read-only view's columns are never listed as missing anything
@@ -124,7 +128,7 @@ Honest, detailed comparisons with the tools people usually evaluate alongside Sc
 - Focused sub-diagrams of the main ERD: import just the entities for one subject area and arrange them freely
 - Read-only by design - the main view stays the single source of truth
 - An orange dot marks entities with relationships outside the view, so a focused diagram never hides that it is incomplete
-- Right-click a legend and choose "Import to context views" - a legend drawn around a domain becomes a context view in one step, without adding entities one by one
+- Right-click a legend and choose "Import to context views" - the confirm leads with creating a context view named after that legend and coloured like it, so a legend drawn around a domain becomes a context view in one step; existing context views can be ticked in the same pass
 
 ### Context Map
 - A bird's-eye view that renders each context view as a single node, with arrows for the dependencies between contexts and a badge showing how many foreign keys flow in each direction
@@ -137,6 +141,7 @@ Honest, detailed comparisons with the tools people usually evaluate alongside Sc
 ### Fields & Constraints
 - Distinct icons for primary keys, foreign keys, and what each plain field holds - text, whole and fractional numbers, booleans, dates and times, JSON, and UUID, with arrays drawing their element's icon inside brackets; nullable and unique badges and default values shown directly on the entity
 - Check constraints, composite unique constraints, and indexes managed visually; fields covered by an IN check constraint are underlined, with their allowed values one keystroke away
+- Enum columns carry the values their type allows, on PostgreSQL as well as MySQL - read in their declared order and shown as read-only tags, because the values belong to the type rather than to the column
 - Convention-aware placement: new fields land above timestamp fields, new foreign keys below the primary key
 - Entity templates pre-populate every new table with the fields your team always adds
 - Fields carry descriptions of their own, marked by a bar on the leading edge of the row - drawn in SVG exports too - so which columns are documented is a glance rather than an audit; a description is diagram data, never a schema change, so documenting a column produces no migration
@@ -147,6 +152,7 @@ Honest, detailed comparisons with the tools people usually evaluate alongside Sc
 - Clear crow's foot notation with configurable cardinality, ON DELETE, and ON UPDATE
 - Relationships with ON DELETE CASCADE are drawn with a bold crow's foot at the child end, so cascading deletes are visible on the canvas without opening any dialog
 - Entity colors carry to relationship lines; click a relationship to highlight it together with both connected fields
+- The selected relation changes in kind rather than degree - drawn as dots in a fixed contrast color, black on light and white on dark - so it stays findable inside a bundle of parallel lines; the crow's feet and cardinality bars stay solid, and SVG exports are untouched
 - Custom waypoints with rounded corners, line hops where lines cross, and double-click gestures to reshape or reset a line
 - Foreign key naming convention (snake_case or camelCase) configurable per connection - applied to the names Schemity writes itself, the foreign key field added when a relation is drawn and the composite keys of a junction table, never to the names you type
 
@@ -166,6 +172,7 @@ Honest, detailed comparisons with the tools people usually evaluate alongside Sc
 - Built-in AI chat with BYOK support: OpenAI, Claude, Gemini, Grok, DeepSeek - requests go directly from your desktop to your provider
 - Ollama support for local models: the same diagram-editing chat with zero network egress
 - The chat interacts with the diagram itself - it creates and modifies entities and relationships, with full undo
+- Generated relations say what happens to a child row: the model picks ON DELETE and ON UPDATE per relation and names the delete rule in its explanation, so the choice is readable before a migration is applied rather than after; an action it invents is rejected rather than written into DDL the database will refuse
 - It works with the Context Map too: ask it to re-arrange the contexts, or to analyze the map for circular dependencies - including indirect cycles spanning several contexts that no visual scan can reveal
 
 ### Keyboard & Productivity
