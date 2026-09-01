@@ -68,7 +68,7 @@ Schemity is for any software engineer who works with relational databases:
 
 - **Starting a new project** - model your domain visually before writing a single migration
 - **Joining an existing codebase** - reverse engineer PostgreSQL (or any supported database) into an ERD and understand the schema fast
-- **Documenting production** - connect through an SSH tunnel with credentials in the OS keychain, read the schema, share the diagram read-only without sharing database access, and export a data dictionary for people who will never open Schemity
+- **Documenting production** - connect through an SSH tunnel with credentials in the OS keychain or resolved from your own credential helper, read the schema, share the diagram read-only without sharing database access, and export a data dictionary for people who will never open Schemity
 - **Evolving a growing schema** - design changes visually, generate precise migrations, keep the ERD in sync with re-sync
 - **Consulting and client work** - one workspace folder per client, physically isolated, handed over or deleted as a folder
 
@@ -96,6 +96,7 @@ Honest, detailed comparisons with the tools people usually evaluate alongside Sc
 - Paste a connection string and the dialog fills itself in - PostgreSQL, MySQL, and SQL Server URIs, a `jdbc:` prefix, and the ADO.NET key/value form the Azure portal hands out; a malformed string is reported rather than half-applied, and every parameter left unused is listed
 - TLS verification, not just TLS: verify-ca and verify-full check the server's certificate against a chain, with custom root CA and client certificate files passed through to the drivers
 - Passwords stored in the OS keychain, never in plain text; SSH keys stored by reference only; opening a connection asks for the keychain once, not once per command
+- Or store no password at all: a credential source toggle runs a shell command through your login shell on connect and uses its output as the password, which is how one mechanism covers AWS RDS IAM tokens, Vault dynamic secrets, and a password manager. Nothing is persisted - the resolved credential lives in memory for five minutes - and a Test command button proves it before you save, reporting only how many characters came back
 - Connection setup hides behind a "Connect to a database" link, so a design-only diagram is name, database type, naming, save - with a visible undo that keeps anything already typed
 - Environment tags (Local, Stag, Prod) keep the connection list easy to scan; the badge appears on a diagram only when there is a connection behind it
 
@@ -110,6 +111,10 @@ Honest, detailed comparisons with the tools people usually evaluate alongside Sc
 
 ### Diagram Design
 - Dark mode and light mode; entities auto-resize to fit content; smart snapping and marquee multi-select
+- The interface is available in English, Japanese, and Simplified Chinese, picked from a globe dropdown beside the theme toggle; switching applies instantly with no reload, and the diagram, the pan position, and every open tab survive it. Generated SQL, DDL, migrations, and the exported data dictionary stay English on purpose, so two people exporting the same schema in different languages still produce the same file to diff
+- F10 folds the toolbar and footer away and hands the whole window to the canvas, for screen recording, presenting, or simply a short laptop screen; F9 squares the window off to 16:9
+- The canvas cursor names the gesture it is about to perform - each resize handle carries its own direction, the new-relation anchor is a crosshair, a field row is a grab - and stays locked for the length of the gesture
+- Entity and legend colors are suggested from a palette that carries each hue as far as sRGB allows rather than holding every hue down to the dullest one, with lightness fixed per tier so header text flips between black and white on the same line, on the canvas and in the SVG export alike
 - Legends group related entities visually - drag, resize, rename, recolor; lock a legend to move its entities with it; right-click a legend to export the SQL of everything inside it
 - Two predefined layouts (alphabetical or relationship-based) plus Reset Layout
 - Realtime fuzzy search across entity, field, and legend names - type any fragment and jump straight to the match, with each result prefixed by what it is and ordered by match quality
@@ -119,6 +124,7 @@ Honest, detailed comparisons with the tools people usually evaluate alongside Sc
 - An empty canvas points at the way in - right-click and the create-entity shortcut on the main view, import on a context view - and the hint never appears in exports
 - Legends and entities support markdown descriptions - a small triangle in the top-right corner opens the rendered description in a modal; context views carry their own, opened from the context view list
 - Export diagrams and context views as JPG, PNG, or SVG, export the full SQL, or export a Mermaid erDiagram that renders natively on GitHub, GitLab, Notion, and Obsidian
+- A shared diagram opens in the theme its author published it in, applied as a preview so it never rewrites the visitor's own preference; an embed can drop its footer link with `?hidelink=1` while keeping the minimap and theme toggles
 - Get SQL reads whatever is selected, from the right-click menu, the keyboard shortcut, or the command palette alike, so the SQL of an arbitrary group of tables is one gesture rather than a table at a time
 - SVG exports are true vector documents, not a screenshot wearing an .svg extension: shapes are real shapes grouped per entity and names stay live text, so a diagram opens as editable artwork in Figma, Affinity Designer, Illustrator, or Inkscape
 - Export a data dictionary instead of a picture: HTML to print or hand to someone who will never open Schemity, Markdown to commit beside the code, or a six-sheet Excel workbook to filter and sort - every entity and column with its type, key, nullability, default, and description, the unique, check, and index constraints, the relationships with their cardinality and delete rules, and the notes held in legends and context views. Database views are included and labelled, and the export follows the active view, so exporting from a context view documents that context alone
@@ -135,23 +141,24 @@ Honest, detailed comparisons with the tools people usually evaluate alongside Sc
 - Arrow shape encodes dependency health: a straight arrow is a one-way dependency, a curved arrow means two contexts depend on each other - circular dependencies stand out at a glance
 - Click a context to highlight all of its dependency arrows; double-click an arrow to see every underlying foreign key behind it
 - Each context's color carries over to its node and outgoing arrows, and fuzzy search focuses any context instantly, even on a busy map
-- The map is a two-way door: an enter icon on the selected box opens that context view, a floating Context Map button in every view gets you back, and the map's exit lands on Main - the one view nothing else on the map could reach
+- The map is a two-way door: an enter icon on the selected box opens that context view - as does a double click anywhere on the box - a floating Context Map button in every view gets you back, and the map's exit lands on Main, the one view nothing else on the map could reach
 - Export the Context Map as JPG, PNG, or SVG, or as a Mermaid diagram
 
 ### Fields & Constraints
 - Distinct icons for primary keys, foreign keys, and what each plain field holds - text, whole and fractional numbers, booleans, dates and times, JSON, and UUID, with arrays drawing their element's icon inside brackets; nullable and unique badges and default values shown directly on the entity
 - Check constraints, composite unique constraints, and indexes managed visually; fields covered by an IN check constraint are underlined, with their allowed values one keystroke away
 - Enum columns carry the values their type allows, on PostgreSQL as well as MySQL - read in their declared order and shown as read-only tags, because the values belong to the type rather than to the column
-- Convention-aware placement: new fields land above timestamp fields, new foreign keys below the primary key
+- Convention-aware placement: new fields land above timestamp fields, and a new foreign key lands below the whole key block - under the primary key, any composite primary-foreign keys, and any existing foreign keys - matching the order entities are already laid out in
 - Entity templates pre-populate every new table with the fields your team always adds
 - Fields carry descriptions of their own, marked by a bar on the leading edge of the row - drawn in SVG exports too - so which columns are documented is a glance rather than an audit; a description is diagram data, never a schema change, so documenting a column produces no migration
 - Array type support for PostgreSQL; smart default values picked from special values or check constraints
 
 ### Relationships & Foreign Keys
 - Create foreign keys by dragging a field to another entity - 1:N, 1:1, and N:N with auto-generated junction tables; self-referencing keys supported
-- Clear crow's foot notation with configurable cardinality, ON DELETE, and ON UPDATE
+- Clear crow's foot notation with configurable cardinality, ON DELETE, and ON UPDATE; an N:N opens at CASCADE on both, since a junction row has no meaning left once either parent is gone, and every dialog reopens on the actions you picked last, remembered separately per relation type
 - Relationships with ON DELETE CASCADE are drawn with a bold crow's foot at the child end, so cascading deletes are visible on the canvas without opening any dialog
 - Entity colors carry to relationship lines; click a relationship to highlight it together with both connected fields
+- Selecting an entity draws every relation touching it at double weight, both ends counted, so its wiring is traceable across a dense diagram at a glance
 - The selected relation changes in kind rather than degree - drawn as dots in a fixed contrast color, black on light and white on dark - so it stays findable inside a bundle of parallel lines; the crow's feet and cardinality bars stay solid, and SVG exports are untouched
 - Custom waypoints with rounded corners, line hops where lines cross, and double-click gestures to reshape or reset a line
 - Foreign key naming convention (snake_case or camelCase) configurable per connection - applied to the names Schemity writes itself, the foreign key field added when a relation is drawn and the composite keys of a junction table, never to the names you type
@@ -179,6 +186,8 @@ Honest, detailed comparisons with the tools people usually evaluate alongside Sc
 - Shortcuts for nearly every action; Vim-style navigation (h/j/k/l) across entities and fields
 - Multiple tabs with isolated undo/redo history; switch with Cmd/Ctrl + 1-9
 - Copy/paste entities and fields between diagrams - pasting onto an existing entity transfers layout and color only, so arrangements move between diagrams safely
+- A copy stays on the clipboard rather than being consumed by the first paste, and repeated pastes cascade, so putting one entity down three times is one copy and three pastes
+- Shift is the multi-select modifier on every platform - Shift+click to add an entity, Shift+drag to box-select - with the platform's own toggle key kept as an alias
 - Move entities by keyboard in 1 px or 10 px steps
 
 ## Pricing

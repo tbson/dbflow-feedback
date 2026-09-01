@@ -4,16 +4,16 @@ What we recently shipped, what we are building, and what we are considering. Thi
 
 ## Recently shipped
 
+- **Japanese and Simplified Chinese** (v2.10.0) - the whole interface, plus AI chat replies and per-language legal pages, picked from a globe dropdown and applied instantly with no reload; generated SQL, migrations, and the data dictionary stay English on purpose, so the same schema exports to the same file in every language
+- **Database passwords from a shell command** (v2.10.0) - a credential source toggle runs your own helper on connect and uses its output as the password, which covers AWS RDS IAM tokens, Vault dynamic secrets, and password managers without vendor-specific code; nothing is persisted, and a Test command button proves it before you save
+- **Large-diagram panning performance** (v2.10.0) - panning now costs what is on screen rather than what is in the schema: off-screen shapes are culled, the picking buffer is skipped mid-gesture, and a pan frame on a 150-entity diagram went from 7.3ms to about 1.0ms
+- **Presentation mode** (v2.9.7) - F10 folds the toolbar and footer away and hands the whole window to the canvas, and F9 squares the window off to 16:9, for screen recording, demos, and short laptop screens
 - **Diagram interchange as JSON** (v2.9.6) - export a diagram exactly as it is saved and import it back from the diagram list, so diagrams move between the desktop app and Schemity Lite; an import never overwrites, and a password never travels in the file
 - **Typed search** (v2.9.6) - `[e`, `[f`, or `[l` scopes a query to entities, fields, or legends, and fields match on their type as well as their name, so `[feric` reaches every NUMERIC column in the diagram
 - **Data dictionary export** (v2.9.3) - the diagram as a document rather than a picture, in HTML, Markdown, and a six-sheet Excel workbook, covering every entity, column, constraint, and relationship, database views included, and closing with a count of what is not documented yet
 - **Field descriptions** (v2.9.3) - columns carry descriptions marked on the row itself, read in from database comments on import and never written back, so documenting a column produces no migration
 - **Connection strings and TLS verification** (v2.9.3) - paste a PostgreSQL, MySQL, or SQL Server connection string and the dialog fills itself in; verify-ca and verify-full check the server certificate against a chain, with custom root CA and client certificate files
 - **Schema lint** (v2.9.2) - seventeen classes of schema problem checked offline and marked on the diagram itself, grouped by consequence rather than severity, with per-diagram ignores and rule switches saved in the file
-- **Minimap** (v2.9.0) - the whole diagram in miniature with a viewport rectangle to click or drag, one per view, with unconfirmed entities the one thing drawn in color
-- **Database views and materialized views** (v2.9.0) - introspected across all supported dialects and displayed as read-only entities, visually distinct from base tables (italic names, a view/mview token in the entity footer)
-- **Git repository indicator** (v2.9.0) - workspaces whose folder sits inside a Git repository are marked as such in the workspace list, at any nesting depth
-- **Editing without the database** (v2.9.2) - a diagram stays editable and saveable when its database is unreachable, and re-sync says so instead of prompting
 
 ## Building now
 
